@@ -23,37 +23,29 @@ interface TaskDao {
     suspend fun updateTask(task: Task)
 
     @Query("""
-        SELECT * FROM task
+        SELECT * FROM task 
         ORDER BY deadLine ASC
     """)
-    fun orderDeadLine(): Flow<List<Task>>
+    fun tasks(): Flow<List<Task>>
 
     @Query("""
         SELECT * FROM task 
         Where completed = 0 
-        ORDER By taskId ASC
+        ORDER By deadLine ASC
     """)
     fun activeTask(): Flow<List<Task>>
 
     @Query("""
         SELECT * FROM task 
         WHERE completed = 1 
-        ORDER By taskId ASC
+        ORDER By deadLine ASC
     """)
     fun completedTask(): Flow<List<Task>>
-
-
-    @Query("""
-        SELECT * FROM task 
-        WHERE completed = 0 
-        ORDER BY deadLine ASC
-    """)
-    fun activeTaskOrderByDeadLine(): Flow<List<Task>>
 
     @Query("""
         SELECT * FROM task 
         WHERE taskID = :id
-        ORDER BY taskId ASC
+        ORDER BY deadLine ASC
     """)
     fun getTask(id: Int): Flow<Task?>
 

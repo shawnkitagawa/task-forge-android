@@ -12,11 +12,9 @@ interface TaskRepository {
 
     suspend fun updateTask(task:Task)
 
-    fun orderByDeadline(): Flow<List<Task>>
+    fun tasks(): Flow<List<Task>>
 
     fun showActiveTask(): Flow<List<Task>>
-
-    fun showActiveTaskOrderByDeadline(): Flow<List<Task>>
 
     fun showCompletedTask(): Flow<List<Task>>
 
@@ -37,11 +35,9 @@ class DefaultTaskRepository(private val taskDao: TaskDao): TaskRepository
 
     override suspend fun updateTask(task:Task) = taskDao.updateTask(task)
 
-    override fun orderByDeadline(): Flow<List<Task>> = taskDao.orderDeadLine()
+    override fun tasks(): Flow<List<Task>> = taskDao.tasks()
 
     override fun showActiveTask(): Flow<List<Task>> = taskDao.activeTask()
-
-    override fun showActiveTaskOrderByDeadline(): Flow<List<Task>> = taskDao.activeTaskOrderByDeadLine()
 
     override fun showCompletedTask(): Flow<List<Task>> = taskDao.completedTask()
 
