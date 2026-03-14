@@ -1,4 +1,4 @@
-# Task Forge 🔥
+# Task Forge 
 
 Task Forge is a modern Android Todo application built with **Kotlin and Jetpack Compose**.
 
