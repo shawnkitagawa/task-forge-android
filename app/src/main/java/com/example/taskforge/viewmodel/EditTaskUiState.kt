@@ -1,9 +1,10 @@
 package com.example.taskforge.viewmodel
 
 data class EditTaskUiState(
-    val taskId: Int? = null,
+    val taskId: Int = 0 ,
     val taskName: String = "",
     val taskDescription: String = "",
-    val deadline: Long? = null,
+    val deadLine: Long = 0,
+    val createdAt: Long = System.currentTimeMillis(),
     val completed: Boolean = false,
 )

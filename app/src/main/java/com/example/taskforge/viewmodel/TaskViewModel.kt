@@ -38,6 +38,20 @@ class TaskViewModel(private val taskRepository: TaskRepository): ViewModel() {
         emptyList()
 
     )
+    fun markComplete(id: Int)
+    {
+        viewModelScope.launch {
+            taskRepository.markComplete(id)
+        }
+    }
+    fun unmarkComplete(id: Int)
+    {
+        viewModelScope.launch {
+            taskRepository.unmarkComplete(id)
+        }
+    }
+
+
 
     companion object
     {
