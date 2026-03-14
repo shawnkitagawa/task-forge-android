@@ -1,3 +1,15 @@
 package com.example.taskforge.viewmodel
 
-data class TaskUiState()
+import com.example.taskforge.model.Task
+
+enum class TaskFilter {
+    All,
+    ACTIVE,
+    COMPLETED
+
+}
+
+data class TaskUiState(
+    val tasks: List<Task> = emptyList(),
+    val selectedFilter: TaskFilter = TaskFilter.ACTIVE
+    )
