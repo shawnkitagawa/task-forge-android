@@ -20,8 +20,7 @@ interface TaskDao {
     suspend fun delete(task:Task)
 
     @Update
-    suspend fun EditTask(task: Task)
-    
+    suspend fun updateTask(task: Task)
 
     @Query("""
         SELECT * FROM task
@@ -36,12 +35,10 @@ interface TaskDao {
     """)
     fun activeTask(): Flow<List<Task>>
 
-
-
     @Query("""
         SELECT * FROM task 
         WHERE completed = 1 
-        ORDER By taskID ASC
+        ORDER By taskId ASC
     """)
     fun completedTask(): Flow<List<Task>>
 
@@ -53,5 +50,25 @@ interface TaskDao {
     """)
     fun activeTaskOrderByDeadLine(): Flow<List<Task>>
 
+    @Query("""
+        SELECT * FROM task 
+        WHERE taskID = :id
+        ORDER BY taskId ASC
+    """)
+    fun getTask(id: Int): Flow<Task?>
+
+    @Query("""
+        UPDATE task 
+        set completed = 1 
+        WHERE taskId = :taskId
+    """)
+    fun markCompleted(taskId: Int)
+
+    @Query("""
+        Update task 
+        set completed = 0 
+        WHERE taskId = :taskId
+    """)
+    fun unmarkCompleted(taskId: Int)
 
 }
