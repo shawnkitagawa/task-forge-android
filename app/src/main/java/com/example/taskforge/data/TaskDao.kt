@@ -51,16 +51,8 @@ interface TaskDao {
 
     @Query("""
         UPDATE task 
-        set completed = 1 
+        set completed = not completed 
         WHERE taskId = :taskId
     """)
-    fun markCompleted(taskId: Int)
-
-    @Query("""
-        Update task 
-        set completed = 0 
-        WHERE taskId = :taskId
-    """)
-    fun unmarkCompleted(taskId: Int)
-
+    suspend fun completeMarker(taskId: Int)
 }

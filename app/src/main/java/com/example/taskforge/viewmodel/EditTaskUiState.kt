@@ -4,7 +4,8 @@ data class EditTaskUiState(
     val taskId: Int = 0 ,
     val taskName: String = "",
     val taskDescription: String = "",
-    val deadLine: Long = 0,
+    val deadlineText:String = "",
     val createdAt: Long = System.currentTimeMillis(),
     val completed: Boolean = false,
+    val dataError: String? = null ,
 )

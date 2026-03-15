@@ -12,8 +12,15 @@ import com.example.taskforge.repository.TaskRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.Int
+import android.util.Log
+import com.example.taskforge.helper.dateConverter
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+
 
 class EditTaskViewModel(private val taskRepository: TaskRepository) : ViewModel() {
 
@@ -24,24 +31,32 @@ class EditTaskViewModel(private val taskRepository: TaskRepository) : ViewModel(
 
     fun addTask()
     {
-        val task = currentTask()
+        val task = currentTask() ?: return
+        Log.d("TaskForge", "addTask() was called")
+        Log.d("TaskForge", "${task.taskName}")
+        Log.d("TaskForge", "${task.deadLine}")
+        Log.d("TaskForge", "${task.taskDescription}")
+        Log.d("TaskForge","${_uiState.value.dataError}" )
         viewModelScope.launch{
             taskRepository.addTask(task)
+            _uiState.value = _uiState.value.copy(
+                deadlineText = "",
+                dataError = null
+            )
         }
 
     }
     fun deleteTask()
     {
-        val task = currentTask()
+        val task = currentTask() ?: return
         viewModelScope.launch{
             taskRepository.deleteTask(task)
         }
 
     }
-
     fun updateTask()
     {
-        val task = currentTask()
+        val task = currentTask() ?: return
         viewModelScope.launch{
             taskRepository.updateTask(task)
         }
@@ -55,13 +70,17 @@ class EditTaskViewModel(private val taskRepository: TaskRepository) : ViewModel(
     }
     fun updateTaskDescription(description: String)
     {
-        _uiState.value = _uiState.value.copy(taskName = description)
+        _uiState.value = _uiState.value.copy(taskDescription = description)
     }
-    fun updateDeadLine(deadLine: Long)
+    fun updateDeadLine( deadlineText: String)
     {
-        _uiState.value = _uiState.value.copy(deadLine = deadLine)
+        _uiState.update{
+            it.copy(
+                deadlineText = deadlineText,
+                dataError = null
+            )
+        }
     }
-
     fun loadTask(id: Int)
     {
         viewModelScope.launch {
@@ -72,27 +91,33 @@ class EditTaskViewModel(private val taskRepository: TaskRepository) : ViewModel(
                     taskId =  task.taskId ,
                     taskName = task.taskName,
                     taskDescription = task.taskDescription,
-                    deadLine = task.deadLine,
+                    deadlineText = dateConverter.longTostring(task.deadLine),
                     completed = task.completed
 
                 )
             }
         }
     }
-
     //helper function
-    private fun currentTask(): Task{
+    private fun currentTask(): Task?{
         val state = _uiState.value
-        val task = Task(
+        val deadline = dateConverter.stringTolong(state.deadlineText)
+
+        if (deadline == null)
+        {
+            _uiState.value = state.copy(
+                dataError = "Please enter a valid date in yyyy-MM--dd format"
+            )
+            return null
+        }
+        return  Task(
             taskId =  state.taskId ,
             taskName = state.taskName,
             taskDescription = state.taskDescription,
-            deadLine = state.deadLine,
-            completed = state.completed
+            deadLine = deadline,
+            completed = state.completed,
         )
-        return task
     }
-
     companion object
     {
         val Factory: ViewModelProvider.Factory = viewModelFactory{

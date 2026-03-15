@@ -24,8 +24,10 @@ import kotlinx.coroutines.launch
 class TaskViewModel(private val taskRepository: TaskRepository): ViewModel() {
 
     private val _selectedFilter = MutableStateFlow(TaskFilter.ALL)
+    val selectedFilter : StateFlow<TaskFilter> = _selectedFilter
 
     val taskFlow: StateFlow<List<Task>> = _selectedFilter.flatMapLatest { filter ->
+        println("flatMapLatest -> $filter")
         when(filter)
         {
             TaskFilter.ALL -> taskRepository.tasks()
@@ -34,21 +36,28 @@ class TaskViewModel(private val taskRepository: TaskRepository): ViewModel() {
         }
     }.stateIn(
         viewModelScope,
-        SharingStarted.WhileSubscribed(),
+        SharingStarted.WhileSubscribed(5000),
         emptyList()
 
     )
-    fun markComplete(id: Int)
+//    fun markComplete(id: Int)
+//    {
+//        viewModelScope.launch {
+//            taskRepository.markComplete(id)
+//        }
+//    }
+    fun completeMarker(id: Int)
     {
+        println("Before toggle taskId = $id")
         viewModelScope.launch {
-            taskRepository.markComplete(id)
+            taskRepository.completeMarker(id)
         }
+        println("After toggle taskId = $id")
     }
-    fun unmarkComplete(id: Int)
+    fun updateFiler(filter: TaskFilter)
     {
-        viewModelScope.launch {
-            taskRepository.unmarkComplete(id)
-        }
+        _selectedFilter.value = filter
+        println("Filter changed: $filter")
     }
 
 

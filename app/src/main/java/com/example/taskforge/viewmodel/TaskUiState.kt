@@ -7,8 +7,3 @@ enum class TaskFilter {
     ACTIVE,
     COMPLETED
 }
-
-//data class TaskUiState(
-//    val tasks: List<Task> = emptyList(),
-//    val selectedFilter: TaskFilter = TaskFilter.ACTIVE
-//    )

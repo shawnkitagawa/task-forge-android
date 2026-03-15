@@ -21,9 +21,7 @@ interface TaskRepository {
     // require for detail Screen or edit screen
     fun getTask(id: Int): Flow<Task?>
 
-    suspend fun  markComplete(id: Int)
-
-    suspend fun unmarkComplete(id: Int)
+    suspend fun  completeMarker(id: Int)
 }
 
 
@@ -44,7 +42,5 @@ class DefaultTaskRepository(private val taskDao: TaskDao): TaskRepository
     // require for detail Screen or edit screen
     override fun getTask(id: Int): Flow<Task?> = taskDao.getTask(id)
 
-    override suspend fun  markComplete(id: Int) = taskDao.markCompleted(id)
-
-    override suspend fun unmarkComplete(id: Int) = taskDao.unmarkCompleted(id)
+    override suspend fun completeMarker(id: Int) = taskDao.completeMarker(id)
 }
