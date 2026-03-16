@@ -36,7 +36,7 @@ class TaskViewModel(private val taskRepository: TaskRepository): ViewModel() {
         }
     }.stateIn(
         viewModelScope,
-        SharingStarted.WhileSubscribed(5000),
+        SharingStarted.Eagerly,
         emptyList()
 
     )
@@ -46,16 +46,17 @@ class TaskViewModel(private val taskRepository: TaskRepository): ViewModel() {
 //            taskRepository.markComplete(id)
 //        }
 //    }
-    fun completeMarker(id: Int)
-    {
-        println("Before toggle taskId = $id")
-        viewModelScope.launch {
-            taskRepository.completeMarker(id)
-        }
-        println("After toggle taskId = $id")
+fun completeMarker(task: Task) {
+    viewModelScope.launch {
+        println("Before toggle taskId = ${task.taskId}, completed = ${task.completed}")
+        taskRepository.updateTask(task.copy(completed = !task.completed))
+        println("After toggle taskId = ${task.taskId}")
     }
-    fun updateFiler(filter: TaskFilter)
-    {
+}
+    fun updateFiler(filter: TaskFilter) {
+        if (_selectedFilter.value == filter) return
+
+        println("setFilter: $filter at ${System.currentTimeMillis()}")
         _selectedFilter.value = filter
         println("Filter changed: $filter")
     }
