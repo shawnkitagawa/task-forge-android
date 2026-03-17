@@ -47,7 +47,8 @@ Data source
 
 ## Screenshots
 
-(Add screenshots later)
+<img width="506" height="1123" alt="image" src="https://github.com/user-attachments/assets/b1a7e30a-0ab0-4411-913c-fe0c79540f1b" />
+
 
 ---
 
