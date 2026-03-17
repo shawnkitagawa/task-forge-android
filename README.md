@@ -47,11 +47,10 @@ Data source
 
 ## Screenshots
 
-<img width="506" height="1123" alt="image" src="https://github.com/user-attachments/assets/b1a7e30a-0ab0-4411-913c-fe0c79540f1b" />
+<img width="501" height="1119" alt="image" src="https://github.com/user-attachments/assets/92aa868a-100b-40b0-a81f-9d9546d2de6a" />
+<img width="501" height="1119" alt="image" src="https://github.com/user-attachments/assets/dfe7bbe6-8ef6-4ca2-bcfe-0488f1877827" />
+<img width="501" height="1120" alt="image" src="https://github.com/user-attachments/assets/d501c884-92c8-4f33-988b-f325e21b6ee2" />
 
-<img width="514" height="1125" alt="image" src="https://github.com/user-attachments/assets/02d98675-d3fb-4053-b458-cc1cd2d85008" />
-
-<img width="506" height="1126" alt="image" src="https://github.com/user-attachments/assets/cedc63e0-d0a9-40eb-9df4-737141c62f9b" />
 
 
 
