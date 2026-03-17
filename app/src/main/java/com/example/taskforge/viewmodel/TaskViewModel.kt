@@ -48,9 +48,7 @@ class TaskViewModel(private val taskRepository: TaskRepository): ViewModel() {
 //    }
 fun completeMarker(task: Task) {
     viewModelScope.launch {
-        println("Before toggle taskId = ${task.taskId}, completed = ${task.completed}")
         taskRepository.updateTask(task.copy(completed = !task.completed))
-        println("After toggle taskId = ${task.taskId}")
     }
 }
     fun updateFiler(filter: TaskFilter) {

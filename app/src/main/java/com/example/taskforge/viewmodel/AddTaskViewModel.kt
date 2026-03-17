@@ -17,67 +17,70 @@ import kotlinx.coroutines.launch
 import kotlin.Int
 import android.util.Log
 import com.example.taskforge.helper.dateConverter
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 
 
-class EditTaskViewModel(private val taskRepository: TaskRepository) : ViewModel() {
+class AddTaskViewModel(private val taskRepository: TaskRepository) : ViewModel() {
 
 
-    private val _uiState = MutableStateFlow(EditTaskUiState())
+    private val _uiState = MutableStateFlow(AddTaskUiState())
 
-    val uiState: StateFlow<EditTaskUiState> = _uiState
+    val uiState: StateFlow<AddTaskUiState> = _uiState
 
     fun addTask()
     {
         val task = currentTask() ?: return
-        Log.d("TaskForge", "addTask() was called")
-        Log.d("TaskForge", "${task.taskName}")
-        Log.d("TaskForge", "${task.deadLine}")
-        Log.d("TaskForge", "${task.taskDescription}")
-        Log.d("TaskForge","${_uiState.value.dataError}" )
         viewModelScope.launch{
             taskRepository.addTask(task)
             _uiState.value = _uiState.value.copy(
                 deadlineText = "",
-                dataError = null
+                taskName = "",
+                taskDescription = "",
+                dateError = null,
+                nameError = null,
+                descriptionError = null,
             )
         }
 
     }
-    fun deleteTask()
+    fun deleteTask(onSucess: () -> Unit )
     {
-        val task = currentTask() ?: return
+        val task = currentTask() ?:  return
         viewModelScope.launch{
             taskRepository.deleteTask(task)
+            onSucess()
         }
 
     }
-    fun updateTask()
+    fun updateTask(onSuccess: () -> Unit)
     {
         val task = currentTask() ?: return
         viewModelScope.launch{
             taskRepository.updateTask(task)
+            _uiState.value = _uiState.value.copy(
+                dateError = null,
+                nameError = null,
+                descriptionError = null,
+            )
+            onSuccess()
         }
     }
 
     // For the textfield to change while typing
     fun updateTaskName(name: String)
     {
-        _uiState.value = _uiState.value.copy(taskName = name)
+        _uiState.value = _uiState.value.copy(taskName = name, nameError = null)
 
     }
     fun updateTaskDescription(description: String)
     {
-        _uiState.value = _uiState.value.copy(taskDescription = description)
+        _uiState.value = _uiState.value.copy(taskDescription = description, descriptionError = null)
     }
     fun updateDeadLine( deadlineText: String)
     {
         _uiState.update{
             it.copy(
                 deadlineText = deadlineText,
-                dataError = null
+                dateError = null
             )
         }
     }
@@ -103,18 +106,27 @@ class EditTaskViewModel(private val taskRepository: TaskRepository) : ViewModel(
         val state = _uiState.value
         val deadline = dateConverter.stringTolong(state.deadlineText)
 
-        if (deadline == null)
+        val dateError = if(deadline == null) "Please enter a valid date in yyyy-MM-dd format" else {null}
+
+        val nameError = if(state.taskName == "")"Please fill in the Title" else null
+
+        val descriptionError = if(state.taskDescription == "")"Please fill in the Description" else null
+
+        if (dateError != null || nameError != null || descriptionError != null)
         {
-            _uiState.value = state.copy(
-                dataError = "Please enter a valid date in yyyy-MM--dd format"
+            _uiState.value = _uiState.value.copy(
+                dateError = dateError,
+                nameError = nameError,
+                descriptionError = descriptionError
             )
             return null
         }
+
         return  Task(
             taskId =  state.taskId ,
             taskName = state.taskName,
             taskDescription = state.taskDescription,
-            deadLine = deadline,
+            deadLine = deadline!! ,
             completed = state.completed,
         )
     }
@@ -126,7 +138,7 @@ class EditTaskViewModel(private val taskRepository: TaskRepository) : ViewModel(
                 val application = (this[APPLICATION_KEY] as TaskForgeApplication)
                 val taskRepository = application.container.taskRepository
 
-                EditTaskViewModel(taskRepository = taskRepository)
+                AddTaskViewModel(taskRepository = taskRepository)
             }
         }
     }

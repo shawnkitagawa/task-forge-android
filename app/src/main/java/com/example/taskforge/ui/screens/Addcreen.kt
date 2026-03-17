@@ -2,59 +2,53 @@ package com.example.taskforge.ui.screens
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.toString
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.taskforge.ui.theme.TaskForgeTheme
-import com.example.taskforge.viewmodel.EditTaskUiState
-import com.example.taskforge.viewmodel.EditTaskViewModel
+import com.example.taskforge.viewmodel.AddTaskUiState
+import com.example.taskforge.viewmodel.AddTaskViewModel
 
 @Composable
-fun EditScreen(
+fun AddScreen(
                modifier: Modifier = Modifier,
-               viewModel: EditTaskViewModel = viewModel(factory = EditTaskViewModel.Factory)
-)
+               viewModel: AddTaskViewModel = viewModel(factory = AddTaskViewModel.Factory),
+               navigateToHome: () -> Unit)
 {
     val uiState by viewModel.uiState.collectAsState()
-    EditScreenContent(uiState = uiState,
+    AddScreenContent(uiState = uiState,
         onTaskNameChange = {viewModel.updateTaskName(it)},
         onTaskDescriptionChange = {viewModel.updateTaskDescription(it)},
         onTaskDeadLineChange = {viewModel.updateDeadLine(it)},
-//        onTaskCompleteChange = {viewModel.},
-        addTask = { viewModel.addTask() })
+        addTask = { viewModel.addTask() },
+        navigateToHome = navigateToHome)
 }
 
 @Composable
-fun EditScreenContent(
-    uiState: EditTaskUiState,
+fun AddScreenContent(
+    uiState: AddTaskUiState,
     onTaskNameChange: (String) -> Unit,
     onTaskDescriptionChange: (String) -> Unit,
     onTaskDeadLineChange: (String) -> Unit,
-//    onTaskCompleteChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     addTask: () -> Unit,
+    navigateToHome: () -> Unit,
 )
 {
-    Column()
+    Column(modifier = Modifier.padding(16.dp) ,horizontalAlignment = Alignment.CenterHorizontally)
     {
-        TaskTextField(value = uiState.taskName, label = "Task Name", onValueChange = onTaskNameChange)
-        TaskTextField(value = uiState.taskDescription, label = "Task Description", onValueChange = onTaskDescriptionChange)
-        TaskTextField(value = uiState.deadlineText, label = "yyyy-MM-dd", onValueChange = onTaskDeadLineChange, isError = uiState.dataError!= null, errorMessage = uiState.dataError)
-//        Checkbox(
-//            checked = uiState.completed,
-//            onCheckedChange = { isChecked -> onTaskCompleteChange(isChecked)}
-//        )
+        TaskTextField(value = uiState.taskName, label = "Task Name", onValueChange = onTaskNameChange, isError = uiState.nameError != null, errorMessage = uiState.nameError)
+        TaskTextField(value = uiState.taskDescription, label = "Task Description", onValueChange = onTaskDescriptionChange, isError = uiState.descriptionError!= null, errorMessage = uiState.descriptionError)
+        TaskTextField(value = uiState.deadlineText, label = "yyyy-MM-dd", onValueChange = onTaskDeadLineChange, isError = uiState.dateError!= null, errorMessage = uiState.dateError)
         Button(
             onClick = {addTask()},
             modifier = Modifier.fillMaxWidth()
@@ -62,10 +56,16 @@ fun EditScreenContent(
         {
             Text("Add Task ")
         }
+        Button(
+            onClick = {navigateToHome()},
+            modifier = Modifier.fillMaxWidth()
+        )
+        {
+            Text("Go Back ")
+        }
 
     }
 }
-
 @Composable
 fun TaskTextField(
     modifier: Modifier = Modifier,
@@ -88,12 +88,10 @@ fun TaskTextField(
         }
     )
 }
-
 @Preview(showBackground = true)
 @Composable
-fun EditScreenPreview() {
+fun AddScreenPreview() {
     TaskForgeTheme {
-//        EditScreenContent(name = "Task", onTaskNameChange = {},
-//            )
+
     }
 }

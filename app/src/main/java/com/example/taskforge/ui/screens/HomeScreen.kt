@@ -1,8 +1,12 @@
 package com.example.taskforge.ui.screens
 
 import android.graphics.Paint
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,10 +15,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
@@ -34,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
@@ -51,9 +58,12 @@ import kotlin.Int
 import kotlin.String
 import kotlin.math.exp
 
+
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier,
-               viewModel: TaskViewModel = viewModel(factory = TaskViewModel.Factory)) {
+               viewModel: TaskViewModel = viewModel(factory = TaskViewModel.Factory),
+               navigateToAdd: () -> Unit,
+               navigateToEdit: (Int) -> Unit, ) {
     val tasks by viewModel.taskFlow.collectAsState()
     val selectedFilter by viewModel.selectedFilter.collectAsState()
 
@@ -74,7 +84,14 @@ fun HomeScreen(modifier: Modifier = Modifier,
                 R.string.completed
             ), filter = TaskFilter.COMPLETED)
         }
-        TodoList(tasks = tasks)
+        TodoList(tasks = tasks, navigateToEdit = {navigateToEdit(it)}, checkComplete = {viewModel.completeMarker(it)}, onClose = {})
+
+        Button(
+            onClick = navigateToAdd
+        )
+        {
+            Text(text = "+ Add")
+        }
     }
 }
 
@@ -97,61 +114,108 @@ fun FilterButton(
 
 @Composable
 fun TodoList(modifier: Modifier = Modifier,
-             tasks: List<Task>
+             tasks: List<Task>,
+             navigateToEdit: (Int) -> Unit,
+             checkComplete: (Task) -> Unit,
+             onClose: (Task) -> Unit,
              )
 {
     LazyColumn(modifier = Modifier)
     {
         items(tasks, key = { it.taskId }) { task ->
-            TodoItem(task = task )
+            TodoItem(task = task , navigateToEdit = {navigateToEdit(it)}, checkComplete = {checkComplete(task)}, onClose = {onClose(task)})
         }
     }
 }
 
 @Composable
-fun TodoItem(modifier: Modifier = Modifier,
-             task: Task)
-{
-    var expand by remember {mutableStateOf(false)}
-    Card(modifier = Modifier
-        .padding(16.dp).fillMaxWidth().heightIn(min = 60.dp)) {
+fun TodoItem(
+    modifier: Modifier = Modifier,
+    task: Task,
+    navigateToEdit: (Int) -> Unit,
+    checkComplete: (Task) -> Unit,
+    onClose: (Task) -> Unit
+) {
+    var expand by remember { mutableStateOf(false) }
 
-        Column(modifier = Modifier)
-        {
+    Card(
+        modifier = modifier
+            .padding(16.dp)
+            .fillMaxWidth()
+            .heightIn(min = 60.dp)
+    ) {
+        Box(modifier = Modifier.fillMaxWidth()) {
 
-
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 20.dp, start = 20.dp, end = 16.dp, bottom = 16.dp)
+                    .animateContentSize(
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioNoBouncy,
+                            stiffness = Spring.StiffnessMedium
+                        )
+                    )
             ) {
-                Text(text = task.taskName)
-                Text(text = longTostring(task.deadLine))
-                Text(text = task.taskId.toString())
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = task.taskName,
+                        maxLines = 3 ,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(5f))
+                    Text(text = longTostring(task.deadLine))
 
-                Spacer(modifier = Modifier.weight(1f))
+                    Spacer(modifier = Modifier.weight(1f))
 
-                TodoIcon(expand = expand, toggle = { expand = !expand })
-                TodoEditIcon()
+                    TodoIcon(expand = expand, toggle = { expand = !expand })
+                    TodoEditIcon(navigateToEdit = {navigateToEdit(task.taskId)}, taskId = task.taskId)
+                    TodoComplete(task = task, checkComplete = { checkComplete(task) })
+                }
+
+                if (expand) {
+                    TodoDescription(description = task.taskDescription)
+                }
             }
-            if (expand)
-            {
-                TodoDescription(description = task.taskDescription)
-            }
+
+
         }
     }
 }
 
+
 @Composable
-fun TodoEditIcon(modifier: Modifier = Modifier)
+fun TodoComplete(modifier: Modifier = Modifier, checkComplete: (Task) -> Unit, task: Task)
 {
     IconButton(
-        onClick = {}
+        onClick = {checkComplete(task)}
+    )
+    {
+        Icon(
+            imageVector = Icons.Filled.CheckCircle,
+            contentDescription = "Completed",
+            tint = if(task.completed) Color.Green else Color.Red,
+
+        )
+    }
+}
+
+
+
+@Composable
+fun TodoEditIcon(modifier: Modifier = Modifier,
+                 navigateToEdit: (Int) -> Unit,
+                 taskId : Int)
+{
+    IconButton(
+        onClick = { navigateToEdit(taskId)}
     )
     {
         Icon(
             imageVector = Icons.Filled.Edit,
-            contentDescription = "Editing"
+            contentDescription = "Editing",
+
         )
     }
 }
@@ -178,34 +242,4 @@ fun TodoDescription(modifier: Modifier = Modifier,
 }
 
 
-
-@Preview(showBackground = true)
-@Composable
-fun HomeScreenPreview() {
-    TaskForgeTheme {
-        var fakeItem: List<Task> = listOf(
-            Task( taskId = 0 ,
-             taskName = "homework",
-        taskDescription = "Really import milestone dajda;kja;fja;kdj;ajfa;jd;asjjdajdsa;jaj;jajk;ajdkasdfadafdadfsadfafadsafasfdafadfafda",
-         deadLine = 3481043212,
-         createdAt = 90413930,
-        completed = false),
-
-
-            Task( taskId = 1 ,
-                taskName = "homework2",
-                taskDescription = "Really import milestone part 2",
-                deadLine = 1321,
-                createdAt = 921312321,
-                completed = false)
-        )
-
-        Column()
-        {
-            TodoItem(task = fakeItem[0])
-            TodoItem(task = fakeItem[1])
-        }
-
-    }
-}
 
