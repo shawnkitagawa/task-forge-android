@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">TaskForge</string>
+    <string name="all">ALL</string>
+    <string name="active">Active</string>
+    <string name="completed">Completed</string>
+    <string name="plan_of_the_day">Plan of the Day</string>
 </resources>
