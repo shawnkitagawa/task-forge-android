@@ -48,7 +48,8 @@ Data source
 ## Screenshots
 
 <img width="501" height="1119" alt="image" src="https://github.com/user-attachments/assets/92aa868a-100b-40b0-a81f-9d9546d2de6a" />
-<img width="501" height="1119" alt="image" src="https://github.com/user-attachments/assets/dfe7bbe6-8ef6-4ca2-bcfe-0488f1877827" />
+<img width="500" height="1119" alt="image" src="https://github.com/user-attachments/assets/8a76d51c-1a40-4098-a997-ad988b9564e1" />
+
 <img width="501" height="1120" alt="image" src="https://github.com/user-attachments/assets/d501c884-92c8-4f33-988b-f325e21b6ee2" />
 
 
