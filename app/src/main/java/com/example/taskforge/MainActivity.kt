@@ -8,14 +8,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.taskforge.ui.theme.TaskForgeTheme
+import com.example.compose.AppTheme
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            TaskForgeTheme {
+            AppTheme(dynamicColor = false) {
                 TaskApp()
             }
         }
@@ -33,7 +34,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-    TaskForgeTheme {
+    AppTheme {
         Greeting("Android")
     }
 }

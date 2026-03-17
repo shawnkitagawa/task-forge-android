@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -26,9 +27,11 @@ import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -50,50 +53,60 @@ import com.example.taskforge.R
 import com.example.taskforge.helper.dateConverter.longTostring
 import com.example.taskforge.helper.dateConverter.stringTolong
 import com.example.taskforge.model.Task
-import com.example.taskforge.ui.theme.TaskForgeTheme
 import com.example.taskforge.viewmodel.TaskFilter
 import com.example.taskforge.viewmodel.TaskViewModel
+import kotlinx.coroutines.selects.select
 import java.util.logging.Filter
 import kotlin.Int
 import kotlin.String
 import kotlin.math.exp
 
 
+
+
+
+
+
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier,
                viewModel: TaskViewModel = viewModel(factory = TaskViewModel.Factory),
-               navigateToAdd: () -> Unit,
                navigateToEdit: (Int) -> Unit, ) {
     val tasks by viewModel.taskFlow.collectAsState()
-    val selectedFilter by viewModel.selectedFilter.collectAsState()
 
     Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally)
     {
-        Text("Test Screen")
         Row()
         {
-            FilterButton(updateFilter = {viewModel.updateFiler(TaskFilter.ALL)}, buttonName = stringResource(
-                R.string.all
-            ), filter = TaskFilter.ALL)
-
-            FilterButton(updateFilter = {viewModel.updateFiler(TaskFilter.ACTIVE)}, buttonName = stringResource(
-                R.string.active
-            ), filter = TaskFilter.ACTIVE)
-
-            FilterButton(updateFilter = {viewModel.updateFiler(TaskFilter.COMPLETED)}, buttonName = stringResource(
-                R.string.completed
-            ), filter = TaskFilter.COMPLETED)
+            Buttons(updateFilter = {viewModel.updateFiler(it)},
+                all = TaskFilter.ALL,
+                active = TaskFilter.ACTIVE,
+                completed = TaskFilter.COMPLETED)
         }
         TodoList(tasks = tasks, navigateToEdit = {navigateToEdit(it)}, checkComplete = {viewModel.completeMarker(it)}, onClose = {})
-
-        Button(
-            onClick = navigateToAdd
-        )
-        {
-            Text(text = "+ Add")
-        }
     }
 }
+@Composable
+fun Buttons(modifier: Modifier = Modifier,
+            updateFilter: (TaskFilter) -> Unit,
+            all: TaskFilter,
+            active: TaskFilter,
+            completed: TaskFilter
+            )
+{
+    FilterButton(updateFilter = {updateFilter(all)}, buttonName = stringResource(
+        R.string.all
+    ), filter = TaskFilter.ALL)
+
+    FilterButton(updateFilter = {updateFilter(active)}, buttonName = stringResource(
+        R.string.active
+    ), filter = TaskFilter.ACTIVE)
+
+    FilterButton(updateFilter = {updateFilter(completed)}, buttonName = stringResource(
+        R.string.completed
+    ), filter = TaskFilter.COMPLETED)
+
+}
+
 
 @Composable
 fun FilterButton(
@@ -140,46 +153,66 @@ fun TodoItem(
 
     Card(
         modifier = modifier
-            .padding(16.dp)
             .fillMaxWidth()
-            .heightIn(min = 60.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
     ) {
-        Box(modifier = Modifier.fillMaxWidth()) {
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 20.dp, start = 20.dp, end = 16.dp, bottom = 16.dp)
-                    .animateContentSize(
-                        animationSpec = spring(
-                            dampingRatio = Spring.DampingRatioNoBouncy,
-                            stiffness = Spring.StiffnessMedium
-                        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .animateContentSize(
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioNoBouncy,
+                        stiffness = Spring.StiffnessMedium
                     )
+                )
+                .padding(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(text = task.taskName,
-                        maxLines = 3 ,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(5f))
-                    Text(text = longTostring(task.deadLine))
+                Text(
+                    text = task.taskName,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.weight(1f)
+                )
 
-                    Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.width(12.dp))
 
-                    TodoIcon(expand = expand, toggle = { expand = !expand })
-                    TodoEditIcon(navigateToEdit = {navigateToEdit(task.taskId)}, taskId = task.taskId)
-                    TodoComplete(task = task, checkComplete = { checkComplete(task) })
-                }
+                Text(
+                    text = longTostring(task.deadLine),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
 
-                if (expand) {
-                    TodoDescription(description = task.taskDescription)
-                }
+                Spacer(modifier = Modifier.width(8.dp))
+
+                TodoIcon(
+                    expand = expand,
+                    toggle = { expand = !expand }
+                )
+
+                TodoEditIcon(
+                    navigateToEdit = { navigateToEdit(task.taskId) },
+                    taskId = task.taskId
+                )
+
+                TodoComplete(
+                    task = task,
+                    checkComplete = { checkComplete(task) }
+                )
             }
 
-
+            if (expand) {
+                Spacer(modifier = Modifier.height(8.dp))
+                TodoDescription(description = task.taskDescription)
+            }
         }
     }
 }
@@ -195,7 +228,7 @@ fun TodoComplete(modifier: Modifier = Modifier, checkComplete: (Task) -> Unit, t
         Icon(
             imageVector = Icons.Filled.CheckCircle,
             contentDescription = "Completed",
-            tint = if(task.completed) Color.Green else Color.Red,
+            tint = if(task.completed) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
 
         )
     }

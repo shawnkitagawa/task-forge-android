@@ -14,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.taskforge.ui.theme.TaskForgeTheme
 import com.example.taskforge.viewmodel.AddTaskUiState
 import com.example.taskforge.viewmodel.AddTaskViewModel
 
@@ -87,11 +86,4 @@ fun TaskTextField(
             }
         }
     )
-}
-@Preview(showBackground = true)
-@Composable
-fun AddScreenPreview() {
-    TaskForgeTheme {
-
-    }
 }

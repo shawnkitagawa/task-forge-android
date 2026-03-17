@@ -22,8 +22,7 @@ fun TaskNavHost(
     {
         composable (route = "home")
         {
-            HomeScreen(navigateToAdd = {navController.navigate("add")},
-                navigateToEdit = {taskId -> navController.navigate("update/$taskId")})
+            HomeScreen(navigateToEdit = {taskId -> navController.navigate("update/$taskId")})
 
         }
         composable (route = "add")
@@ -38,5 +37,4 @@ fun TaskNavHost(
             UpdateScreen(taskid = taskId, navigateToHome = {navController.navigate("home")})
         }
     }
-
 }

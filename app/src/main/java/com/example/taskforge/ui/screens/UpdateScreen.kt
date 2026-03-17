@@ -85,8 +85,6 @@ fun UpdateScreenContext(
             Text("Delete this Task ")
         }
 
-        Text(text = task.taskId.toString())
-
     }
 }
 
